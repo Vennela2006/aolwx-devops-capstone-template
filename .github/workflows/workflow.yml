@@ -1,4 +1,5 @@
 
+
 name: Python CI Pipeline
 
 on:
@@ -13,6 +14,29 @@ jobs:
   build:
     name: Lint and Unit Tests
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: postgres
+      DATABASE_HOST: localhost
+      DATABASE_URI: postgresql://postgres:postgres@localhost:5432/postgres
+      SECRET_KEY: test-secret-key
 
     steps:
       - name: Checkout repository
@@ -37,3 +61,4 @@ jobs:
       - name: Run unit tests with nose
         run: |
           nosetests -v
+
